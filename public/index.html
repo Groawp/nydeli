@@ -1,0 +1,2766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New York Slice Deli — Payroll & Paystubs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF1F5;
+    --surface: #FFFFFF;
+    --sidebar: #17233B;
+    --sidebar-hover: #22314E;
+    --ink: #1A2233;
+    --ink-soft: #5B6472;
+    --accent: #2F5D8A;
+    --accent-hover: #274E74;
+    --accent-soft: #E7EEF5;
+    --good: #1F7A5C;
+    --good-soft: #E4F3EC;
+    --danger: #B23A48;
+    --danger-soft: #FBEAEC;
+    --border: #E2E5EA;
+    --border-strong: #C9CFD8;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    color: #C7D0DE;
+    display: flex;
+    flex-direction: column;
+    padding: 1.6rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 0.6rem 1.5rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.09);
+  }
+  .brand .mark {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #4C8AC2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .brand .name {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .brand .tag {
+    font-size: 0.65rem;
+    color: #8492A6;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 1px;
+  }
+
+  nav.side-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  nav.side-nav button {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: #A8B3C4;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  nav.side-nav button:hover { background: var(--sidebar-hover); color: #fff; }
+  nav.side-nav button.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  nav.side-nav button .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; opacity: 0.55; flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 0.9rem 0.75rem;
+    font-size: 0.72rem;
+    color: #6B7789;
+    line-height: 1.5;
+    border-top: 1px solid rgba(255,255,255,0.09);
+  }
+  .logout-link {
+    display: block; margin-top: 0.6rem; background: transparent; border: none;
+    color: #A8B3C4; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; padding: 0; text-decoration: underline;
+  }
+  .logout-link:hover { color: #fff; }
+
+  /* ---------- Login gate ---------- */
+  .login-overlay {
+    position: fixed; inset: 0; background: var(--bg); z-index: 300;
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+  }
+  .login-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 2rem 2.1rem; max-width: 380px; width: 100%;
+    box-shadow: 0 20px 50px rgba(23,35,59,0.18);
+  }
+  .login-brand {
+    display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.4rem;
+    padding-bottom: 1.1rem; border-bottom: 1px solid var(--border);
+  }
+  .login-brand .mark {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), #4C8AC2);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+  }
+  .login-brand .name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ink); }
+  .login-brand .tag { font-size: 0.68rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+  .login-title {
+    font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.05rem;
+    color: var(--ink); margin-bottom: 0.9rem;
+  }
+  #loginForm label { margin-bottom: 0.85rem; }
+  .login-error {
+    color: var(--danger); font-size: 0.8rem; font-weight: 600; margin: -0.3rem 0 0.6rem;
+    min-height: 1.1em;
+  }
+  .login-alt-link {
+    display: block; width: 100%; margin-top: 0.9rem; background: transparent; border: none;
+    color: var(--ink-soft); font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; padding: 0; text-decoration: underline; text-align: center;
+  }
+  .login-alt-link:hover { color: var(--accent); }
+
+  /* ---------- Main column ---------- */
+  .main-col {
+    flex: 1;
+    min-width: 0;
+    padding: 2rem 2.4rem 4rem;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.6rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  h2.section-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .section-desc {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin: 0.2rem 0 1.4rem;
+  }
+
+  section { display: none; }
+  section.active { display: block; }
+
+  /* ---------- Cards / panels ---------- */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.4rem;
+    margin-bottom: 1.6rem;
+    box-shadow: 0 1px 2px rgba(23, 35, 59, 0.04);
+  }
+
+  .panel-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 0.9rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.9rem;
+    align-items: end;
+  }
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.9rem;
+    align-items: end;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.76rem;
+    color: var(--ink-soft);
+    gap: 0.35rem;
+    font-weight: 500;
+  }
+
+  input, select {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  input:focus, select:focus, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.15rem;
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    transition: background 0.12s ease;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.ghost {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+  }
+  .btn.ghost:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .btn.small { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+  .btn.danger { background: var(--danger); }
+  .btn.danger:hover { background: #9A303C; }
+  .btn.process { background: var(--good); }
+  .btn.process:hover { background: #175E48; }
+
+  .seg {
+    display: flex;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    max-width: 300px;
+    margin-bottom: 1.1rem;
+  }
+  .seg button {
+    flex: 1;
+    border: none;
+    background: var(--surface);
+    color: var(--ink-soft);
+    padding: 0.55rem 0.6rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .seg button.active { background: var(--accent); color: #fff; font-weight: 600; }
+
+  /* ---------- Tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  th {
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--border-strong);
+    white-space: nowrap;
+    background: #F7F9FB;
+  }
+  th:first-child { border-top-left-radius: 8px; }
+  th:last-child { border-top-right-radius: 8px; }
+  td {
+    padding: 0.6rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+  }
+  td:first-child { font-family: 'Inter', sans-serif; font-weight: 500; }
+  tr:hover td { background: #FAFBFD; }
+  .num { text-align: right; }
+  .neg { color: var(--danger); }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  .table-scroll table { margin: 0; }
+  .table-scroll .empty-state { border: none; }
+
+  /* Time Log table: fixed widths so In/Out never wrap to a second line,
+     with Comment kept narrow and truncated instead of stretching rows tall. */
+  table.timelog-table { table-layout: fixed; }
+  table.timelog-table th,
+  table.timelog-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  table.timelog-table td:last-child { overflow: visible; }
+  table.timelog-table th:nth-child(1) { width: 13%; }
+  table.timelog-table th:nth-child(2) { width: 13%; }
+  table.timelog-table th:nth-child(3) { width: 11%; }
+  table.timelog-table th:nth-child(4) { width: 11%; }
+  table.timelog-table th:nth-child(5) { width: 12%; }
+  table.timelog-table th:nth-child(6) { width: 22%; }
+  table.timelog-table th:nth-child(7) { width: 18%; }
+  @media (max-width: 900px) {
+    table.timelog-table th:nth-child(1) { width: 16%; }
+    table.timelog-table th:nth-child(2) { width: 15%; }
+    table.timelog-table th:nth-child(3) { width: 13%; }
+    table.timelog-table th:nth-child(4) { width: 13%; }
+    table.timelog-table th:nth-child(5) { width: 11%; }
+    table.timelog-table th:nth-child(6) { width: 14%; }
+    table.timelog-table th:nth-child(7) { width: 18%; }
+  }
+
+  .empty-state {
+    font-family: 'Inter', sans-serif;
+    color: var(--ink-soft);
+    padding: 2.4rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+  }
+
+  .row-actions { display: flex; gap: 0.4rem; }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 20px;
+  }
+  .badge.hourly { background: var(--accent-soft); color: var(--accent); }
+  .badge.salaried { background: var(--good-soft); color: var(--good); }
+  .badge.warn { background: #FEF6E7; color: #8A5A0A; }
+  .badge.bad { background: var(--danger-soft); color: var(--danger); }
+  .badge.live { background: var(--good-soft); color: var(--good); }
+
+  /* Clock-In tab */
+  table.clock-table { table-layout: fixed; }
+  table.clock-table th, table.clock-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  table.clock-table th:nth-child(1) { width: 20%; }
+  table.clock-table th:nth-child(2) { width: 20%; }
+  table.clock-table th:nth-child(3) { width: 16%; }
+  table.clock-table th:nth-child(4) { width: 16%; }
+  table.clock-table th:nth-child(5) { width: 12%; }
+  table.clock-table th:nth-child(6) { width: 16%; }
+  .week-bar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+  .week-label { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ink); margin: 0 0.4rem; }
+  .week-summary { font-size: 0.8rem; color: var(--ink-soft); margin-left: auto; }
+  .week-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  .week-grid { display: grid; grid-template-columns: 120px repeat(7, minmax(88px, 1fr)) 64px; min-width: 780px; font-size: 0.78rem; }
+  .wk-head { background: #F7F9FB; padding: 0.55rem 0.5rem; text-align: center; font-weight: 600; color: var(--ink-soft); border-bottom: 1px solid var(--border-strong); line-height: 1.25; }
+  .wk-head .dnum { display: block; font-family: 'IBM Plex Mono', monospace; font-weight: 500; font-size: 0.72rem; }
+  .wk-head.today { background: var(--accent); color: #fff; }
+  .wk-head.name-h { text-align: left; }
+  .wk-name { display: flex; align-items: center; gap: 0.45rem; padding: 0.5rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.82rem; }
+  .wk-dot { width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: 0.62rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Manrope', sans-serif; }
+  .wk-cell { padding: 0.3rem; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.25rem; min-height: 46px; }
+  .wk-cell.today { background: #F3F7FB; }
+  .wk-shift { border-left: 3px solid var(--accent); border-radius: 4px; padding: 0.2rem 0.35rem; line-height: 1.25; }
+  .wk-shift .t { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; white-space: nowrap; }
+  .wk-shift .h { font-size: 0.66rem; color: var(--ink-soft); }
+  .wk-shift.flag { border-left-color: var(--danger) !important; background: var(--danger-soft) !important; }
+  .wk-shift.live { border-left-color: var(--good) !important; background: var(--good-soft) !important; }
+  .wk-total { padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+  .wk-foot { background: #F7F9FB; padding: 0.5rem; font-weight: 600; font-size: 0.74rem; color: var(--ink-soft); }
+  .wk-foot.c { text-align: center; border-left: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; color: var(--ink); }
+  .sync-status { font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.8rem; }
+  .sync-status.error { color: var(--danger); font-weight: 600; }
+  .sync-status.ok { color: var(--good); font-weight: 600; }
+  .chip-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
+  .help-note { font-size: 0.78rem; color: var(--ink-soft); line-height: 1.5; margin-top: 0.8rem; }
+
+  .period-bar { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+
+  .emp-check-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.6rem;
+  }
+  .emp-check-item {
+    display: flex; align-items: center; gap: 0.55rem; padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border); border-radius: 6px; background: #F7F9FB; font-size: 0.85rem;
+    cursor: pointer; user-select: none;
+  }
+  .emp-check-item:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .emp-check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  /* ---------- KPI stat cards ---------- */
+  .panel.danger-zone { border-color: #F0C6CB; background: var(--danger-soft); }
+  .panel-label.danger { color: var(--danger); }
+
+  .preset-panel {
+    margin-top: 1rem; padding-top: 0.9rem; border-top: 1px dashed var(--border-strong);
+  }
+  .preset-panel-label {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--ink-soft); margin-bottom: 0.6rem;
+  }
+  .preset-chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .preset-chip {
+    display: flex; align-items: center; gap: 0.4rem; font-family: 'Inter', sans-serif; font-size: 0.82rem;
+    font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent);
+    border-radius: 20px; padding: 0.4rem 0.85rem; cursor: pointer; transition: background 0.12s ease, color 0.12s ease;
+  }
+  .preset-chip:hover { background: var(--accent); color: #fff; }
+  .preset-chip .count {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; opacity: 0.75;
+    background: rgba(0,0,0,0.08); padding: 0.05rem 0.4rem; border-radius: 10px;
+  }
+  .preset-chip:hover .count { background: rgba(255,255,255,0.25); }
+
+  .import-result {
+    margin-top: 0.9rem; padding: 0.7rem 0.9rem; border-radius: 6px; font-size: 0.85rem;
+    background: var(--good-soft); color: var(--good); border: 1px solid #BFE3D3; font-weight: 600;
+  }
+  .import-result.error { background: var(--danger-soft); color: var(--danger); border-color: #F0C6CB; }
+
+  .stat-cards {
+    display: flex;
+    gap: 1rem;
+    margin: 1.4rem 0;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+  }
+  .stat-card .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .stat-card .value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-top: 0.15rem;
+  }
+
+  /* ---------- Pay run history ---------- */
+  .run-group {
+    margin-bottom: 1.8rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem 1.2rem;
+    box-shadow: 0 1px 2px rgba(23, 35, 59, 0.04);
+  }
+  .run-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 2px solid var(--accent-soft);
+  }
+  .run-group-head .range {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .run-group-head .count-pill {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: var(--accent-soft);
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+  }
+  .stub-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    margin-bottom: 0.55rem;
+    background: #FAFBFD;
+    transition: background 0.12s ease, transform 0.12s ease;
+  }
+  .stub-list-item:hover {
+    background: var(--accent-soft);
+    transform: translateX(2px);
+  }
+  .stub-list-item .stub-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .stub-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+  .stub-list-item .meta .run-date {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.9rem;
+  }
+  .stub-list-item .meta .pay-line {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--good);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* ---------- Paystub modal (the signature artifact) ---------- */
+  #stubModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(23, 35, 59, 0.55);
+    z-index: 50;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 1rem;
+    overflow-y: auto;
+  }
+  #stubModal.show { display: flex; }
+
+  .stub-wrap {
+    background: var(--surface);
+    max-width: 960px;
+    width: 100%;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 24px 60px rgba(23,35,59,0.35);
+  }
+  .stub-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .paystub {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .paystub .band {
+    background: var(--sidebar);
+    color: #fff;
+    padding: 1rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .paystub .band .co {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+  }
+  .paystub .band .stamp {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    background: var(--good);
+    color: #fff;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+  }
+  .paystub .body-area { padding: 1.2rem 1.4rem 0.5rem; }
+
+  .stub-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stub-row.head {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 0.55rem;
+  }
+  .stub-row .lbl { color: var(--ink-soft); }
+  .stub-row.total {
+    border-top: 2px solid var(--ink);
+    border-bottom: none;
+    margin-top: 0.5rem;
+    padding-top: 0.7rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .stub-row.total .amt { color: var(--good); font-size: 1.2rem; }
+
+  .stub-detail-block {
+    margin: 0.7rem 0;
+    padding: 0.6rem 0.8rem;
+    background: #F7F9FB;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .stub-detail-block .dt-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    padding: 0.2rem 0;
+    color: var(--ink-soft);
+  }
+
+  .stub-footer {
+    padding: 0.9rem 1.4rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .stub-footer .tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--sidebar);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.65rem 1.15rem;
+    border-radius: 7px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .toast.show { opacity: 1; }
+
+  .edit-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #FEF6E7;
+    color: #8A5A0A;
+    border: 1px solid #F3DDAE;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    margin-bottom: 1.2rem;
+  }
+  .edit-banner.show { display: flex; }
+  .edit-banner button {
+    background: #fff;
+    border: 1px solid #F3DDAE;
+    color: #8A5A0A;
+    border-radius: 5px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* ---------- Paystub document (itemized print format) ---------- */
+  .paystub-doc { background: #fff; padding: 1.6rem 1.7rem; font-family: 'Inter', sans-serif; color: var(--ink); }
+  .paystub-doc .doc-header { text-align: center; margin-bottom: 1.1rem; padding-bottom: 0.9rem; border-bottom: 2px solid var(--ink); }
+  .paystub-doc .doc-header .co-name { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.01em; }
+  .paystub-doc .doc-header .doc-sub { font-size: 0.72rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-soft); margin-top: 3px; font-weight: 600; }
+
+  .paystub-doc .meta-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.6rem 1.2rem; font-size: 0.82rem;
+    margin: 0 0 1.1rem; padding: 0.8rem 1rem; background: #F7F9FB; border: 1px solid var(--border); border-radius: 6px;
+  }
+  .paystub-doc .meta-grid .mi .l { color: var(--ink-soft); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; white-space: nowrap; }
+  .paystub-doc .meta-grid .mi .v { font-weight: 600; font-family: 'IBM Plex Mono', monospace; font-size: 0.86rem; margin-top: 1px; white-space: nowrap; }
+
+  table.doc-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-top: 0.3rem; table-layout: fixed; }
+  table.doc-table th {
+    background: var(--sidebar); color: #fff; padding: 0.32rem 0.5rem; text-align: left;
+    font-weight: 600; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap;
+  }
+  table.doc-table td {
+    padding: 0.22rem 0.5rem; border-bottom: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  table.doc-table td:first-child { font-family: 'Inter', sans-serif; }
+  table.doc-table td:last-child { white-space: normal; }
+  table.doc-table .num { text-align: right; }
+  table.doc-table tr.total-row td { font-weight: 700; border-top: 2px solid var(--ink); border-bottom: none; padding-top: 0.45rem; }
+  table.doc-table th:nth-child(1) { width: 17%; }
+  table.doc-table th:nth-child(2) { width: 17%; }
+  table.doc-table th:nth-child(3) { width: 17%; }
+  table.doc-table th:nth-child(4) { width: 14%; }
+  table.doc-table th:nth-child(5) { width: 35%; }
+
+  .doc-adj-block { margin-top: 0.7rem; }
+  .doc-adj-line {
+    display: flex; justify-content: space-between; font-size: 0.82rem; padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--border); font-family: 'IBM Plex Mono', monospace;
+  }
+  .doc-adj-line.subtotal-line {
+    font-weight: 600; color: var(--ink); font-family: 'Inter', sans-serif; font-size: 0.85rem;
+  }
+  .doc-adj-line.subtotal-line span:last-child { font-family: 'IBM Plex Mono', monospace; }
+  .doc-new-total {
+    display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 800;
+    padding: 0.7rem 0 0.2rem; margin-top: 0.3rem; border-top: 2px solid var(--ink);
+    font-family: 'Manrope', sans-serif;
+  }
+  .doc-new-total .amt { color: var(--good); }
+
+  .doc-footer { text-align: center; margin-top: 1.2rem; font-size: 0.75rem; color: var(--ink-soft); }
+
+  @media print {
+    @page { size: landscape; margin: 10mm; }
+    body > *:not(#stubModal) { display: none !important; }
+    #stubModal {
+      display: block !important; position: static !important; inset: auto; background: white;
+      padding: 0; width: 100%; height: auto;
+    }
+    .stub-close, .modal-actions { display: none !important; }
+    .stub-wrap { box-shadow: none; max-width: 100%; width: 100%; position: static; margin: 0; }
+    .paystub-doc { padding: 0.4rem 0.6rem; }
+    table.doc-table td { padding: 0.16rem 0.5rem; font-size: 0.72rem; }
+    table.doc-table th { padding: 0.24rem 0.5rem; }
+    .paystub-doc .meta-grid { padding: 0.5rem 0.8rem; margin-bottom: 0.7rem; }
+    .doc-header { margin-bottom: 0.7rem; padding-bottom: 0.5rem; }
+  }
+
+  @media (max-width: 860px) {
+    .app-shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; padding: 1rem; gap: 1rem; }
+    .brand { border-bottom: none; padding: 0; margin: 0; }
+    nav.side-nav { flex-direction: row; flex-wrap: wrap; }
+    .sidebar-footer { display: none; }
+    .main-col { padding: 1.4rem 1.2rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="mark">🍕</div>
+      <div>
+        <div class="name">New York Slice Deli</div>
+        <span class="tag">Payroll workspace</span>
+      </div>
+    </div>
+
+    <!-- Login form (self-signup disabled — accounts are created by the admin in Firebase Console) -->
+    <div id="loginForm" style="display:none;">
+      <div class="login-title">Log in</div>
+      <label>Email
+        <input type="email" id="loginUsername" autocomplete="username">
+      </label>
+      <label>Password
+        <input type="password" id="loginPassword" autocomplete="current-password">
+      </label>
+      <div id="loginError" class="login-error"></div>
+      <button class="btn" id="loginSubmitBtn" style="width:100%; margin-top:0.4rem;">Log in</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell" style="display:none;">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">🍕</div>
+      <div>
+        <div class="name">New York Slice Deli</div>
+        <span class="tag">Payroll workspace</span>
+      </div>
+    </div>
+
+    <nav class="side-nav">
+      <button class="tab-btn active" data-tab="employees"><span class="dot"></span>Employees</button>
+      <button class="tab-btn" data-tab="timelog"><span class="dot"></span>Time Log</button>
+      <button class="tab-btn" data-tab="run"><span class="dot"></span>Run Payroll</button>
+      <button class="tab-btn" data-tab="clockin"><span class="dot"></span>Clock-In</button>
+      <button class="tab-btn" data-tab="history"><span class="dot"></span>Paystubs</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      Data is saved privately to your account and only visible to you.
+      <button id="logoutBtn" class="logout-link">Log out</button>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <!-- EMPLOYEES -->
+    <section id="tab-employees" class="active">
+      <div class="page-head"><h2 class="section-title">Employee Roster</h2></div>
+      <p class="section-desc">Add each person you pay, their type, and their rate.</p>
+
+      <div class="panel">
+        <div class="panel-label">Backup &amp; Restore</div>
+        <p class="section-desc" style="margin:0 0 0.9rem;">
+          Export everything in this app (employees, time log, and pay runs) as a single JSON file you can keep safe. Import it back any time — for example, right after using "Delete all data" below to reset the app.
+        </p>
+        <div class="period-bar">
+          <button class="btn" id="exportDataBtn">Export all data</button>
+          <input type="file" id="backupFileInput" accept=".json,application/json">
+          <button class="btn ghost" id="importBackupBtn">Import backup</button>
+        </div>
+        <div id="backupResultWrap"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Import from CSV</div>
+        <p class="section-desc" style="margin:0 0 0.9rem;">
+          Upload a CSV with columns: Name, Date, In, Out, Total Hours, Hourly Rate, Payout, Comment.
+          This creates any employees not already in your roster (using their most recent rate) and adds every row as a time log entry.
+        </p>
+        <div class="period-bar">
+          <input type="file" id="csvFileInput" accept=".csv,text/csv">
+          <button class="btn" id="importCsvBtn">Import CSV</button>
+        </div>
+        <div id="importResultWrap"></div>
+      </div>
+
+      <div class="panel danger-zone">
+        <div class="panel-label danger">Danger zone</div>
+        <p class="section-desc" style="margin:0 0 0.9rem;">
+          Permanently erases every employee, time log entry, and pay run saved in this app — use this right before importing a fresh CSV.
+        </p>
+        <button class="btn danger" id="deleteAllDataBtn">Delete all data</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label" id="empFormLabel">Add employee</div>
+
+        <div class="edit-banner" id="empEditBanner">
+          <span id="empEditBannerText">Editing employee</span>
+          <button id="cancelEmpEditBtn">Cancel edit</button>
+        </div>
+
+        <div class="form-grid">
+          <label>Full name
+            <input type="text" id="empName" placeholder="">
+          </label>
+          <label>Pay type
+            <select id="empType">
+              <option value="hourly">Hourly</option>
+              <option value="salaried">Salaried</option>
+            </select>
+          </label>
+          <label id="rateLabelWrap">Hourly rate ($)
+            <input type="number" id="empRate" placeholder="" step="0.01" min="0">
+          </label>
+          <label>
+            <span style="visibility:hidden;">add</span>
+            <button class="btn" id="addEmpBtn">+ Add employee</button>
+          </label>
+        </div>
+      </div>
+
+      <div id="empTableWrap"></div>
+    </section>
+
+    <!-- TIME LOG -->
+    <section id="tab-timelog">
+      <div class="page-head"><h2 class="section-title">Time Log</h2></div>
+      <p class="section-desc">Log daily shifts, or record a one-off cash adjustment.</p>
+
+      <div class="edit-banner" id="editBanner">
+        <span id="editBannerText">Editing entry</span>
+        <button id="cancelEditBtn">Cancel edit</button>
+      </div>
+
+      <div class="panel">
+        <div class="seg">
+          <button class="entry-mode-btn active" data-mode="shift">Worked shift</button>
+          <button class="entry-mode-btn" data-mode="adjustment">Cash adjustment</button>
+        </div>
+
+        <div class="form-grid" id="shiftFormGrid">
+          <label>Employee
+            <select id="teEmployee"></select>
+          </label>
+          <label>Date
+            <input type="date" id="teDate">
+          </label>
+          <label>In
+            <input type="time" id="teIn">
+          </label>
+          <label>Out
+            <input type="time" id="teOut">
+          </label>
+          <label>Comment (optional)
+            <input type="text" id="teComment" placeholder="">
+          </label>
+          <label>
+            <span style="visibility:hidden;">add</span>
+            <button class="btn" id="addShiftBtn">+ Log shift</button>
+          </label>
+        </div>
+
+        <div id="shiftPresetsPanel" class="preset-panel">
+          <div class="preset-panel-label">Quick shifts for this employee</div>
+          <div id="shiftPresetsWrap" class="preset-chip-row"></div>
+        </div>
+
+        <div class="form-grid" id="adjFormGrid" style="display:none;">
+          <label>Employee
+            <select id="adjEmployee"></select>
+          </label>
+          <label>Date
+            <input type="date" id="adjDate">
+          </label>
+          <label>Amount ($, use − for deduction)
+            <input type="number" id="adjAmount" placeholder="-117.00" step="0.01">
+          </label>
+          <label>Comment
+            <input type="text" id="adjComment" placeholder="Cash">
+          </label>
+          <label>
+            <span style="visibility:hidden;">add</span>
+            <button class="btn" id="addAdjBtn">+ Log adjustment</button>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">View log</div>
+        <div class="filter-grid">
+          <label>Employee
+            <select id="filterEmployee">
+              <option value="">All employees</option>
+            </select>
+          </label>
+          <label>From date
+            <input type="date" id="filterStart">
+          </label>
+          <label>To date
+            <input type="date" id="filterEnd">
+          </label>
+          <label>
+            <span style="visibility:hidden;">apply</span>
+            <button class="btn ghost" id="clearFilterBtn">Clear filter</button>
+          </label>
+        </div>
+      </div>
+
+      <div class="table-scroll" id="timeLogTableWrap"></div>
+    </section>
+
+    <!-- RUN PAYROLL -->
+    <section id="tab-run">
+      <div class="page-head"><h2 class="section-title">Run Payroll</h2></div>
+      <p class="section-desc">Select a pay period to pull hours and payouts from the time log.</p>
+
+      <div class="panel">
+        <div class="panel-label">Quick date range</div>
+        <div class="period-bar">
+          <label>Month
+            <input type="month" id="quickMonth">
+          </label>
+          <button class="btn ghost small" id="quickFirstHalf">1st – 15th</button>
+          <button class="btn ghost small" id="quickSecondHalf">16th – End of month</button>
+          <button class="btn ghost small" id="quickFullMonth">Full month</button>
+        </div>
+
+        <div class="period-bar" style="margin-top:1.1rem;">
+          <label>Period start
+            <input type="date" id="periodStart">
+          </label>
+          <label>Period end
+            <input type="date" id="periodEnd">
+          </label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Employees in this run</div>
+        <div class="period-bar" style="margin-bottom:0.9rem;">
+          <button class="btn ghost small" id="selectAllEmpBtn">Select all</button>
+          <button class="btn ghost small" id="selectNoneEmpBtn">Clear selection</button>
+        </div>
+        <div id="runEmpCheckboxWrap"></div>
+      </div>
+
+      <div style="margin-bottom:1.2rem;">
+        <button class="btn process" id="loadRunBtn">Process</button>
+      </div>
+
+      <div id="runTableWrap"></div>
+      <div id="runSummaryWrap"></div>
+      <div style="margin-top:1.2rem;">
+        <button class="btn" id="saveRunBtn" style="display:none;">Save &amp; generate paystubs</button>
+      </div>
+    </section>
+
+    <!-- CLOCK-IN (Google Sheet) -->
+    <section id="tab-clockin">
+      <div class="page-head"><h2 class="section-title">Clock-In</h2></div>
+      <p class="section-desc">Live punches from your public Google Sheet, paired into shifts.</p>
+
+      <div class="panel">
+        <div class="panel-label">Google Sheet connection</div>
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+          <label>Public sheet URL
+            <input type="url" id="clockUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
+          </label>
+          <label>Sheet timestamps are in
+            <select id="clockSourceTz">
+              <option value="utc">UTC (typical for form tools)</option>
+              <option value="local">Already local time</option>
+            </select>
+          </label>
+          <label>Show times in
+            <select id="clockDisplayTz">
+              <option value="America/Los_Angeles">Pacific</option>
+              <option value="America/Denver">Mountain</option>
+              <option value="America/Chicago">Central</option>
+              <option value="America/New_York">Eastern</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </label>
+        </div>
+        <div class="period-bar" style="margin-top:1rem;">
+          <button class="btn" id="clockSaveBtn">Save &amp; sync</button>
+          <button class="btn ghost" id="clockSyncBtn">Sync now</button>
+        </div>
+        <div class="sync-status" id="clockStatus">Not connected yet. Paste your sheet link above.</div>
+        <div class="help-note">
+          The sheet must be viewable by anyone with the link (Share &rarr; General access &rarr; Anyone with the link: Viewer),
+          or published via File &rarr; Share &rarr; Publish to web (CSV). Expected columns: <b>Submission time</b>, <b>NAME</b>, <b>CLOCK</b> (IN / OUT).
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Weekly roster &mdash; who worked</div>
+        <div class="week-bar">
+          <button class="btn ghost small" id="weekPrev">&larr; Prev</button>
+          <button class="btn ghost small" id="weekThis">This week</button>
+          <button class="btn ghost small" id="weekLast">Last week</button>
+          <button class="btn ghost small" id="weekNext">Next &rarr;</button>
+          <span class="week-label" id="weekLabel"></span>
+          <select id="weekStartSel" title="First day of the week" style="padding:0.3rem 0.5rem; font-size:0.78rem;">
+            <option value="1">Week starts Monday</option>
+            <option value="0">Week starts Sunday</option>
+          </select>
+          <span class="week-summary" id="weekSummary"></span>
+        </div>
+        <div id="weekChartWrap"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">View</div>
+        <div class="filter-grid">
+          <label>Employee
+            <select id="clockFilterEmp"><option value="">All employees</option></select>
+          </label>
+          <label>From date
+            <input type="date" id="clockFilterStart">
+          </label>
+          <label>To date
+            <input type="date" id="clockFilterEnd">
+          </label>
+          <label>Show
+            <select id="clockView">
+              <option value="shifts">Shifts</option>
+              <option value="issues">Needs attention only</option>
+              <option value="raw">Raw punches</option>
+            </select>
+          </label>
+        </div>
+        <div class="chip-row">
+          <button class="btn ghost small" id="clockRange7">Last 7 days</button>
+          <button class="btn ghost small" id="clockRangeMonth">This month</button>
+          <button class="btn ghost small" id="clockRangeClear">Clear filter</button>
+        </div>
+      </div>
+
+      <div id="clockStatsWrap"></div>
+      <div class="table-scroll" id="clockTableWrap"></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="tab-history">
+      <div class="page-head"><h2 class="section-title">Past Pay Runs</h2></div>
+      <p class="section-desc">Every saved payroll run, with a printable paystub per employee.</p>
+      <div id="historyWrap"></div>
+    </section>
+  </div>
+</div>
+
+<div id="stubModal">
+  <div class="stub-wrap">
+    <button class="stub-close" id="stubClose">✕</button>
+    <div class="paystub" id="stubContent"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="stubCloseBtn">Close</button>
+      <button class="btn" id="stubPrintBtn">Print paystub</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const state = { employees: [], timeEntries: [], runs: [], business: { companyName: 'New York Slice Deli', frequency: 'Bi-Weekly' } };
+let currentRunEntries = [];
+let editingEntryId = null;
+
+const fmt = (n) => (n < 0 ? '−$' + Math.abs(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})
+                          : '$' + (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}));
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ---------- Storage ----------
+async function loadData() {
+  try { const r = await window.storage.get('employees', false); state.employees = r ? JSON.parse(r.value) : []; }
+  catch (e) { state.employees = []; }
+  try { const r = await window.storage.get('timeEntries', false); state.timeEntries = r ? JSON.parse(r.value) : []; }
+  catch (e) { state.timeEntries = []; }
+  try { const r = await window.storage.get('payruns', false); state.runs = r ? JSON.parse(r.value) : []; }
+  catch (e) { state.runs = []; }
+  try { const r = await window.storage.get('businessInfo', false); state.business = r ? JSON.parse(r.value) : { companyName: 'New York Slice Deli', frequency: 'Bi-Weekly' }; }
+  catch (e) { state.business = { companyName: 'New York Slice Deli', frequency: 'Bi-Weekly' }; }
+
+  renderEmployees();
+  populateEmployeeSelects();
+  renderTimeLog();
+  renderHistory();
+  initClock();
+}
+async function saveEmployees() {
+  try { await window.storage.set('employees', JSON.stringify(state.employees), false); }
+  catch (e) { console.error('Storage error saving employees', e); }
+}
+async function saveTimeEntries() {
+  try { await window.storage.set('timeEntries', JSON.stringify(state.timeEntries), false); }
+  catch (e) { console.error('Storage error saving time entries', e); }
+}
+
+// ---------- CSV Import ----------
+function padTimeStr(t) {
+  if (!t) return '';
+  const parts = t.split(':');
+  if (parts.length < 2) return '';
+  const h = parts[0].padStart(2, '0');
+  const m = parts[1].padStart(2, '0');
+  return `${h}:${m}`;
+}
+function csvDateToIso(d) {
+  const parts = d.split('/');
+  if (parts.length !== 3) return null;
+  const [mm, dd, yyyy] = parts;
+  return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+}
+function parsePayoutStr(s) {
+  if (!s) return 0;
+  const cleaned = s.replace(/[$,\s]/g, '');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+}
+
+function parseCsvText(text) {
+  // Strip BOM if present
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  if (lines.length < 2) return [];
+  const dataLines = lines.slice(1); // skip header
+
+  const parsed = [];
+  for (const line of dataLines) {
+    const cols = line.split(',');
+    const name = (cols[0] || '').trim();
+    const dateRaw = (cols[1] || '').trim();
+    const inRaw = (cols[2] || '').trim();
+    const outRaw = (cols[3] || '').trim();
+    const hoursRaw = (cols[4] || '').trim();
+    const rateRaw = (cols[5] || '').trim();
+    const payoutRaw = (cols[6] || '').trim();
+    const comment = (cols[7] || '').trim();
+
+    if (!name || !dateRaw) continue;
+    const isoDate = csvDateToIso(dateRaw);
+    if (!isoDate) continue;
+
+    const rate = parseFloat(rateRaw) || 0;
+    const payout = parsePayoutStr(payoutRaw);
+    const hours = parseFloat(hoursRaw) || 0;
+    const kind = (inRaw === '' && outRaw === '') ? 'adjustment' : 'shift';
+
+    parsed.push({
+      name, date: isoDate,
+      inTime: kind === 'shift' ? padTimeStr(inRaw) : '',
+      outTime: kind === 'shift' ? padTimeStr(outRaw) : '',
+      hours: kind === 'shift' ? hours : 0,
+      rate, payout, comment, kind
+    });
+  }
+  return parsed;
+}
+
+async function importCsvRows(rows) {
+  // Determine each employee's most recent rate from the CSV (by latest date)
+  const latestByName = {};
+  rows.forEach(r => {
+    const key = r.name.toLowerCase();
+    if (!latestByName[key] || r.date > latestByName[key].date) {
+      latestByName[key] = { name: r.name, date: r.date, rate: r.rate };
+    }
+  });
+
+  // Create any employees not already in the roster (case-insensitive match)
+  let createdCount = 0;
+  Object.values(latestByName).forEach(info => {
+    const existing = state.employees.find(e => e.name.trim().toLowerCase() === info.name.toLowerCase());
+    if (!existing) {
+      state.employees.push({ id: 'emp_' + Date.now() + '_' + Math.random().toString(36).slice(2,7), name: info.name, type: 'hourly', rate: info.rate });
+      createdCount++;
+    }
+  });
+  await saveEmployees();
+
+  // Map employee name -> id
+  const nameToId = {};
+  state.employees.forEach(e => { nameToId[e.name.trim().toLowerCase()] = e.id; });
+
+  // Build time entries
+  let addedEntries = 0;
+  rows.forEach(r => {
+    const empId = nameToId[r.name.toLowerCase()];
+    if (!empId) return;
+    state.timeEntries.push({
+      id: 'te_' + Date.now() + '_' + Math.random().toString(36).slice(2,9),
+      employeeId: empId, name: r.name, kind: r.kind,
+      date: r.date, inTime: r.inTime, outTime: r.outTime,
+      hours: r.hours, rate: r.rate, payout: Math.round(r.payout*100)/100,
+      comment: r.comment
+    });
+    addedEntries++;
+  });
+  await saveTimeEntries();
+
+  return { createdCount, addedEntries, employeeCount: Object.keys(latestByName).length };
+}
+
+document.getElementById('importCsvBtn').addEventListener('click', () => {
+  const fileInput = document.getElementById('csvFileInput');
+  const resultWrap = document.getElementById('importResultWrap');
+  const file = fileInput.files[0];
+  if (!file) { showToast('Choose a CSV file first'); return; }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const rows = parseCsvText(e.target.result);
+      if (rows.length === 0) {
+        resultWrap.innerHTML = '<div class="import-result error">No valid rows found in that file.</div>';
+        return;
+      }
+      const result = await importCsvRows(rows);
+      renderEmployees();
+      populateEmployeeSelects();
+      renderTimeLog();
+      resultWrap.innerHTML = `<div class="import-result">Imported ${result.addedEntries} time log entries across ${result.employeeCount} employees (${result.createdCount} new employee${result.createdCount === 1 ? '' : 's'} added to your roster).</div>`;
+      showToast('CSV import complete');
+      fileInput.value = '';
+    } catch (err) {
+      console.error('CSV import error', err);
+      resultWrap.innerHTML = '<div class="import-result error">Could not import that file. Check it matches the expected column format.</div>';
+    }
+  };
+  reader.onerror = () => {
+    resultWrap.innerHTML = '<div class="import-result error">Could not read that file.</div>';
+  };
+  reader.readAsText(file);
+});
+
+// ---------- Backup: Export ----------
+document.getElementById('exportDataBtn').addEventListener('click', async () => {
+  const resultWrap = document.getElementById('backupResultWrap');
+  try {
+    const backup = {
+      exportedFrom: 'New York Slice Deli Payroll',
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      employees: state.employees,
+      timeEntries: state.timeEntries,
+      runs: state.runs,
+      business: state.business
+    };
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nyslicedeli-payroll-backup-${dateStamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    resultWrap.innerHTML = `<div class="import-result">Exported ${state.employees.length} employees, ${state.timeEntries.length} time log entries, and ${state.runs.length} pay run${state.runs.length === 1 ? '' : 's'}.</div>`;
+    showToast('Backup downloaded');
+  } catch (err) {
+    console.error('Export error', err);
+    resultWrap.innerHTML = '<div class="import-result error">Could not export data.</div>';
+  }
+});
+
+// ---------- Backup: Import ----------
+document.getElementById('importBackupBtn').addEventListener('click', () => {
+  const fileInput = document.getElementById('backupFileInput');
+  const resultWrap = document.getElementById('backupResultWrap');
+  const file = fileInput.files[0];
+  if (!file) { showToast('Choose a backup file first'); return; }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      if (!Array.isArray(data.employees) || !Array.isArray(data.timeEntries)) {
+        resultWrap.innerHTML = '<div class="import-result error">That file doesn\'t look like a valid backup.</div>';
+        return;
+      }
+
+      const sure = confirm('Import this backup? It will REPLACE all current employees, time log entries, and pay runs.');
+      if (!sure) return;
+
+      state.employees = data.employees || [];
+      state.timeEntries = data.timeEntries || [];
+      state.runs = data.runs || [];
+      state.business = data.business || state.business;
+
+      await saveEmployees();
+      await saveTimeEntries();
+      await saveRuns();
+      await saveBusinessInfo();
+
+      renderEmployees();
+      populateEmployeeSelects();
+      renderTimeLog();
+      renderHistory();
+
+      resultWrap.innerHTML = `<div class="import-result">Restored ${state.employees.length} employees, ${state.timeEntries.length} time log entries, and ${state.runs.length} pay run${state.runs.length === 1 ? '' : 's'}.</div>`;
+      showToast('Backup restored');
+      fileInput.value = '';
+    } catch (err) {
+      console.error('Backup import error', err);
+      resultWrap.innerHTML = '<div class="import-result error">Could not read that file. Make sure it\'s a JSON backup exported from this app.</div>';
+    }
+  };
+  reader.onerror = () => {
+    resultWrap.innerHTML = '<div class="import-result error">Could not read that file.</div>';
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById('deleteAllDataBtn').addEventListener('click', async () => {
+  const sure = confirm('Delete ALL employees, time log entries, and pay runs? This cannot be undone.');
+  if (!sure) return;
+
+  state.employees = [];
+  state.timeEntries = [];
+  state.runs = [];
+
+  await saveEmployees();
+  await saveTimeEntries();
+  await saveRuns();
+
+  renderEmployees();
+  populateEmployeeSelects();
+  renderTimeLog();
+  renderHistory();
+  document.getElementById('importResultWrap').innerHTML = '';
+
+  showToast('All data deleted');
+});
+
+async function saveRuns() {
+  try { await window.storage.set('payruns', JSON.stringify(state.runs), false); }
+  catch (e) { console.error('Storage error saving runs', e); }
+}
+async function saveBusinessInfo() {
+  try { await window.storage.set('businessInfo', JSON.stringify(state.business), false); }
+  catch (e) { console.error('Storage error saving business info', e); }
+}
+// ---------- Formatting helpers for paystub document ----------
+function formatDateDisplay(iso) {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-');
+  return `${parseInt(m)}/${parseInt(d)}/${y}`;
+}
+function formatTime12h(hhmm) {
+  if (!hhmm) return '—';
+  let [h, m] = hhmm.split(':').map(Number);
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if (h === 0) h = 12;
+  return `${h}:${m.toString().padStart(2,'0')} ${suffix}`;
+}
+
+// ---------- Employees tab ----------
+let editingEmployeeId = null;
+
+document.getElementById('empType').addEventListener('change', (e) => {
+  document.getElementById('rateLabelWrap').firstChild.textContent =
+    e.target.value === 'hourly' ? 'Hourly rate ($)' : 'Salary per period ($)';
+  document.getElementById('empRate').placeholder = '';
+});
+
+document.getElementById('addEmpBtn').addEventListener('click', async () => {
+  const name = document.getElementById('empName').value.trim();
+  const type = document.getElementById('empType').value;
+  const rate = parseFloat(document.getElementById('empRate').value);
+
+  if (!name) { showToast('Enter a name first'); return; }
+  if (isNaN(rate) || rate <= 0) { showToast('Enter a valid rate/salary'); return; }
+
+  if (editingEmployeeId) {
+    const idx = state.employees.findIndex(e => e.id === editingEmployeeId);
+    if (idx !== -1) {
+      state.employees[idx] = { ...state.employees[idx], name, type, rate };
+    }
+    await saveEmployees();
+    renderEmployees();
+    populateEmployeeSelects();
+    endEmpEdit();
+    showToast('Employee updated');
+  } else {
+    state.employees.push({ id: 'emp_' + Date.now(), name, type, rate });
+    await saveEmployees();
+    renderEmployees();
+    populateEmployeeSelects();
+    document.getElementById('empName').value = '';
+    document.getElementById('empRate').value = '';
+    showToast('Employee added');
+  }
+});
+
+function startEmpEdit(emp) {
+  editingEmployeeId = emp.id;
+  document.getElementById('empEditBanner').classList.add('show');
+  document.getElementById('empEditBannerText').textContent = 'Editing ' + emp.name;
+  document.getElementById('empFormLabel').textContent = 'Edit employee';
+  document.getElementById('empName').value = emp.name;
+  document.getElementById('empType').value = emp.type;
+  document.getElementById('empType').dispatchEvent(new Event('change'));
+  document.getElementById('empRate').value = emp.rate;
+  document.getElementById('addEmpBtn').textContent = 'Update employee';
+  document.getElementById('tab-employees').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function endEmpEdit() {
+  editingEmployeeId = null;
+  document.getElementById('empEditBanner').classList.remove('show');
+  document.getElementById('empFormLabel').textContent = 'Add employee';
+  document.getElementById('addEmpBtn').textContent = '+ Add employee';
+  document.getElementById('empName').value = '';
+  document.getElementById('empRate').value = '';
+}
+document.getElementById('cancelEmpEditBtn').addEventListener('click', endEmpEdit);
+
+function renderEmployees() {
+  const wrap = document.getElementById('empTableWrap');
+  if (state.employees.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">No employees yet. Add your first one above.</div>';
+    return;
+  }
+  let rows = state.employees.map(e => `
+    <tr>
+      <td>${escapeHtml(e.name)}</td>
+      <td><span class="badge ${e.type}">${e.type === 'hourly' ? 'Hourly' : 'Salaried'}</span></td>
+      <td class="num">${e.type === 'hourly' ? fmt(e.rate) + '/hr' : fmt(e.rate) + '/period'}</td>
+      <td class="row-actions">
+        <button class="btn small ghost" data-edit-emp="${e.id}">Edit</button>
+        <button class="btn small danger" data-remove="${e.id}">Remove</button>
+      </td>
+    </tr>
+  `).join('');
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Name</th><th>Type</th><th class="num">Rate</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+  wrap.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      state.employees = state.employees.filter(e => e.id !== btn.dataset.remove);
+      if (editingEmployeeId === btn.dataset.remove) endEmpEdit();
+      await saveEmployees();
+      renderEmployees();
+      populateEmployeeSelects();
+      showToast('Employee removed');
+    });
+  });
+  wrap.querySelectorAll('[data-edit-emp]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const emp = state.employees.find(e => e.id === btn.dataset.editEmp);
+      if (emp) startEmpEdit(emp);
+    });
+  });
+}
+
+function populateEmployeeSelects() {
+  const opts = state.employees.map(e => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
+  const placeholder = state.employees.length === 0 ? '<option value="">Add an employee first</option>' : opts;
+  document.getElementById('teEmployee').innerHTML = placeholder;
+  document.getElementById('adjEmployee').innerHTML = placeholder;
+  document.getElementById('filterEmployee').innerHTML = '<option value="">All employees</option>' + opts;
+  renderRunEmployeeCheckboxes();
+  renderShiftPresets();
+}
+
+// ---------- Run Payroll: employee selection ----------
+function renderRunEmployeeCheckboxes() {
+  const wrap = document.getElementById('runEmpCheckboxWrap');
+  if (state.employees.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">Add employees on the Employees tab first.</div>';
+    return;
+  }
+  wrap.innerHTML = `<div class="emp-check-grid">` + state.employees.map(e => `
+    <label class="emp-check-item">
+      <input type="checkbox" class="run-emp-checkbox" value="${e.id}" checked>
+      ${escapeHtml(e.name)}
+    </label>
+  `).join('') + `</div>`;
+}
+
+document.getElementById('selectAllEmpBtn').addEventListener('click', () => {
+  document.querySelectorAll('.run-emp-checkbox').forEach(cb => cb.checked = true);
+});
+document.getElementById('selectNoneEmpBtn').addEventListener('click', () => {
+  document.querySelectorAll('.run-emp-checkbox').forEach(cb => cb.checked = false);
+});
+
+function getSelectedEmployeeIds() {
+  return Array.from(document.querySelectorAll('.run-emp-checkbox:checked')).map(cb => cb.value);
+}
+
+// ---------- Run Payroll: quick date range ----------
+function pad2(n) { return n.toString().padStart(2, '0'); }
+
+(function initQuickMonth() {
+  const now = new Date();
+  document.getElementById('quickMonth').value = now.getFullYear() + '-' + pad2(now.getMonth() + 1);
+})();
+
+function applyQuickRange(part) {
+  const monthVal = document.getElementById('quickMonth').value;
+  if (!monthVal) { showToast('Pick a month first'); return; }
+  const [y, m] = monthVal.split('-').map(Number);
+  let start, end;
+  const lastDay = new Date(y, m, 0).getDate();
+
+  if (part === 'first-half') {
+    start = `${y}-${pad2(m)}-01`;
+    end = `${y}-${pad2(m)}-15`;
+  } else if (part === 'second-half') {
+    start = `${y}-${pad2(m)}-16`;
+    end = `${y}-${pad2(m)}-${pad2(lastDay)}`;
+  } else {
+    start = `${y}-${pad2(m)}-01`;
+    end = `${y}-${pad2(m)}-${pad2(lastDay)}`;
+  }
+  document.getElementById('periodStart').value = start;
+  document.getElementById('periodEnd').value = end;
+}
+
+document.getElementById('quickFirstHalf').addEventListener('click', () => applyQuickRange('first-half'));
+document.getElementById('quickSecondHalf').addEventListener('click', () => applyQuickRange('second-half'));
+document.getElementById('quickFullMonth').addEventListener('click', () => applyQuickRange('full'));
+
+// ---------- Time Log tab: add/edit ----------
+document.querySelectorAll('.entry-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.entry-mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+    const mode = btn.dataset.mode;
+    document.getElementById('shiftFormGrid').style.display = mode === 'shift' ? 'grid' : 'none';
+    document.getElementById('adjFormGrid').style.display = mode === 'adjustment' ? 'grid' : 'none';
+    document.getElementById('shiftPresetsPanel').style.display = mode === 'shift' ? 'block' : 'none';
+  });
+});
+
+function hoursBetween(inTime, outTime) {
+  const [ih, im] = inTime.split(':').map(Number);
+  const [oh, om] = outTime.split(':').map(Number);
+  let mins = (oh*60+om) - (ih*60+im);
+  if (mins < 0) mins += 24*60;
+  return Math.round((mins/60)*100)/100;
+}
+
+function setMode(mode) {
+  document.querySelectorAll('.entry-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.getElementById('shiftFormGrid').style.display = mode === 'shift' ? 'grid' : 'none';
+  document.getElementById('adjFormGrid').style.display = mode === 'adjustment' ? 'grid' : 'none';
+  document.getElementById('shiftPresetsPanel').style.display = mode === 'shift' ? 'block' : 'none';
+}
+
+// ---------- Quick shift presets (auto-derived from that employee's past shifts) ----------
+function renderShiftPresets() {
+  const wrap = document.getElementById('shiftPresetsWrap');
+  const empId = document.getElementById('teEmployee').value;
+  if (!empId) { wrap.innerHTML = '<span class="section-desc" style="margin:0;">Pick an employee to see their common shifts.</span>'; return; }
+
+  const shifts = state.timeEntries.filter(t => t.employeeId === empId && t.kind === 'shift' && t.inTime && t.outTime);
+  if (shifts.length === 0) {
+    wrap.innerHTML = '<span class="section-desc" style="margin:0;">No shift history yet for this employee — log one and it\'ll show up here next time.</span>';
+    return;
+  }
+
+  const counts = {};
+  shifts.forEach(s => {
+    const key = s.inTime + '|' + s.outTime;
+    if (!counts[key]) counts[key] = { inTime: s.inTime, outTime: s.outTime, count: 0 };
+    counts[key].count++;
+  });
+
+  const topShifts = Object.values(counts).sort((a,b) => b.count - a.count).slice(0, 6);
+
+  wrap.innerHTML = topShifts.map(s => `
+    <button type="button" class="preset-chip" data-in="${s.inTime}" data-out="${s.outTime}">
+      ${formatTime12h(s.inTime)} &ndash; ${formatTime12h(s.outTime)}
+      <span class="count">${s.count}&times;</span>
+    </button>
+  `).join('');
+
+  wrap.querySelectorAll('.preset-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.getElementById('teIn').value = chip.dataset.in;
+      document.getElementById('teOut').value = chip.dataset.out;
+      showToast('Shift time filled — pick a date and log it');
+    });
+  });
+}
+
+document.getElementById('teEmployee').addEventListener('change', renderShiftPresets);
+
+function startEdit(entry) {
+  editingEntryId = entry.id;
+  document.getElementById('editBanner').classList.add('show');
+  document.getElementById('editBannerText').textContent = 'Editing entry for ' + entry.name + ' on ' + entry.date;
+
+  if (entry.kind === 'shift') {
+    setMode('shift');
+    document.getElementById('teEmployee').value = entry.employeeId;
+    document.getElementById('teDate').value = entry.date;
+    document.getElementById('teIn').value = entry.inTime;
+    document.getElementById('teOut').value = entry.outTime;
+    document.getElementById('teComment').value = entry.comment || '';
+    document.getElementById('addShiftBtn').textContent = 'Update shift';
+    renderShiftPresets();
+  } else {
+    setMode('adjustment');
+    document.getElementById('adjEmployee').value = entry.employeeId;
+    document.getElementById('adjDate').value = entry.date;
+    document.getElementById('adjAmount').value = entry.payout;
+    document.getElementById('adjComment').value = entry.comment || '';
+    document.getElementById('addAdjBtn').textContent = 'Update adjustment';
+  }
+  document.getElementById('tab-timelog').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function endEdit() {
+  editingEntryId = null;
+  document.getElementById('editBanner').classList.remove('show');
+  document.getElementById('addShiftBtn').textContent = '+ Log shift';
+  document.getElementById('addAdjBtn').textContent = '+ Log adjustment';
+  document.getElementById('teIn').value = '';
+  document.getElementById('teOut').value = '';
+  document.getElementById('teComment').value = '';
+  document.getElementById('adjAmount').value = '';
+  document.getElementById('adjComment').value = '';
+}
+document.getElementById('cancelEditBtn').addEventListener('click', endEdit);
+
+document.getElementById('addShiftBtn').addEventListener('click', async () => {
+  const empId = document.getElementById('teEmployee').value;
+  const date = document.getElementById('teDate').value;
+  const inTime = document.getElementById('teIn').value;
+  const outTime = document.getElementById('teOut').value;
+  const comment = document.getElementById('teComment').value.trim();
+
+  if (!empId) { showToast('Add an employee first'); return; }
+  if (!date) { showToast('Pick a date'); return; }
+  if (!inTime || !outTime) { showToast('Enter both in and out time'); return; }
+
+  const emp = state.employees.find(e => e.id === empId);
+  const hours = hoursBetween(inTime, outTime);
+  const rate = emp.rate;
+  const payout = emp.type === 'hourly' ? Math.round(hours*rate*100)/100 : 0;
+
+  if (editingEntryId) {
+    const idx = state.timeEntries.findIndex(t => t.id === editingEntryId);
+    if (idx !== -1) {
+      state.timeEntries[idx] = { ...state.timeEntries[idx], employeeId: empId, name: emp.name, kind: 'shift', date, inTime, outTime, hours, rate, payout, comment };
+    }
+    endEdit();
+    showToast('Shift updated');
+  } else {
+    state.timeEntries.push({ id: 'te_' + Date.now(), employeeId: empId, name: emp.name, kind: 'shift', date, inTime, outTime, hours, rate, payout, comment });
+    document.getElementById('teIn').value = '';
+    document.getElementById('teOut').value = '';
+    document.getElementById('teComment').value = '';
+    showToast('Shift logged');
+  }
+  await saveTimeEntries();
+  renderTimeLog();
+  renderShiftPresets();
+});
+
+document.getElementById('addAdjBtn').addEventListener('click', async () => {
+  const empId = document.getElementById('adjEmployee').value;
+  const date = document.getElementById('adjDate').value;
+  const amount = parseFloat(document.getElementById('adjAmount').value);
+  const comment = document.getElementById('adjComment').value.trim();
+
+  if (!empId) { showToast('Add an employee first'); return; }
+  if (!date) { showToast('Pick a date'); return; }
+  if (isNaN(amount)) { showToast('Enter a valid amount'); return; }
+
+  const emp = state.employees.find(e => e.id === empId);
+
+  if (editingEntryId) {
+    const idx = state.timeEntries.findIndex(t => t.id === editingEntryId);
+    if (idx !== -1) {
+      state.timeEntries[idx] = { ...state.timeEntries[idx], employeeId: empId, name: emp.name, kind: 'adjustment', date, inTime: '', outTime: '', hours: 0, rate: emp.rate, payout: Math.round(amount*100)/100, comment: comment || 'Cash' };
+    }
+    endEdit();
+    showToast('Adjustment updated');
+  } else {
+    state.timeEntries.push({ id: 'te_' + Date.now(), employeeId: empId, name: emp.name, kind: 'adjustment', date, inTime: '', outTime: '', hours: 0, rate: emp.rate, payout: Math.round(amount*100)/100, comment: comment || 'Cash' });
+    document.getElementById('adjAmount').value = '';
+    document.getElementById('adjComment').value = '';
+    showToast('Adjustment logged');
+  }
+  await saveTimeEntries();
+  renderTimeLog();
+});
+
+// ---------- Time Log: filters ----------
+document.getElementById('filterEmployee').addEventListener('change', renderTimeLog);
+document.getElementById('filterStart').addEventListener('change', renderTimeLog);
+document.getElementById('filterEnd').addEventListener('change', renderTimeLog);
+document.getElementById('clearFilterBtn').addEventListener('click', () => {
+  document.getElementById('filterEmployee').value = '';
+  document.getElementById('filterStart').value = '';
+  document.getElementById('filterEnd').value = '';
+  renderTimeLog();
+});
+
+function renderTimeLog() {
+  const wrap = document.getElementById('timeLogTableWrap');
+  const empFilter = document.getElementById('filterEmployee').value;
+  const startFilter = document.getElementById('filterStart').value;
+  const endFilter = document.getElementById('filterEnd').value;
+
+  let filtered = state.timeEntries.filter(t => {
+    if (empFilter && t.employeeId !== empFilter) return false;
+    if (startFilter && t.date < startFilter) return false;
+    if (endFilter && t.date > endFilter) return false;
+    return true;
+  });
+
+  if (state.timeEntries.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">No time entries yet. Log a shift or adjustment above.</div>';
+    return;
+  }
+  if (filtered.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">No entries match this filter.</div>';
+    return;
+  }
+
+  const sorted = [...filtered].sort((a,b) => a.date < b.date ? 1 : -1);
+  let rows = sorted.map(t => {
+    const commentText = t.kind === 'adjustment' ? (t.comment || 'Cash') + ' (' + fmt(t.payout) + ')' : (t.comment || '');
+    return `
+    <tr>
+      <td>${escapeHtml(t.name)}</td>
+      <td>${t.date}</td>
+      <td>${t.kind === 'shift' ? formatTime12h(t.inTime) : '—'}</td>
+      <td>${t.kind === 'shift' ? formatTime12h(t.outTime) : '—'}</td>
+      <td class="num">${t.kind === 'shift' ? t.hours : 0}</td>
+      <td title="${escapeHtml(commentText)}">${escapeHtml(commentText)}</td>
+      <td class="row-actions">
+        <button class="btn small ghost" data-edit-te="${t.id}">Edit</button>
+        <button class="btn small danger" data-remove-te="${t.id}">Remove</button>
+      </td>
+    </tr>
+  `;
+  }).join('');
+  wrap.innerHTML = `
+    <table class="timelog-table">
+      <thead><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th><th class="num">Total Hours</th><th>Comment</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+  wrap.querySelectorAll('[data-remove-te]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      state.timeEntries = state.timeEntries.filter(t => t.id !== btn.dataset.removeTe);
+      if (editingEntryId === btn.dataset.removeTe) endEdit();
+      await saveTimeEntries();
+      renderTimeLog();
+      renderShiftPresets();
+      showToast('Entry removed');
+    });
+  });
+  wrap.querySelectorAll('[data-edit-te]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const entry = state.timeEntries.find(t => t.id === btn.dataset.editTe);
+      if (entry) startEdit(entry);
+    });
+  });
+}
+
+// ---------- Run payroll tab ----------
+document.getElementById('loadRunBtn').addEventListener('click', () => {
+  const start = document.getElementById('periodStart').value;
+  const end = document.getElementById('periodEnd').value;
+  if (!start || !end) { showToast('Set both dates'); return; }
+  if (state.employees.length === 0) { showToast('Add employees first'); return; }
+
+  const selectedIds = getSelectedEmployeeIds();
+  if (selectedIds.length === 0) { showToast('Select at least one employee'); return; }
+
+  currentRunEntries = state.employees.filter(emp => selectedIds.includes(emp.id)).map(emp => {
+    // Recalculate each worked shift with the employee's CURRENT rate, so rate edits
+    // on the Employees tab take effect here. Cash adjustments keep their fixed amount.
+    const entries = state.timeEntries
+      .filter(t => t.employeeId === emp.id && t.date >= start && t.date <= end)
+      .map(t => {
+        if (t.kind === 'shift' && emp.type === 'hourly') {
+          return { ...t, rate: emp.rate, payout: Math.round(t.hours * emp.rate * 100) / 100 };
+        }
+        return t;
+      });
+    if (emp.type === 'salaried') {
+      return { employeeId: emp.id, name: emp.name, type: 'salaried', gross: emp.rate, detail: entries };
+    }
+    const totalHours = entries.reduce((s,t) => s + (t.kind==='shift' ? t.hours : 0), 0);
+    const totalPayout = entries.reduce((s,t) => s + t.payout, 0);
+    return { employeeId: emp.id, name: emp.name, type: 'hourly', totalHours, gross: Math.round(totalPayout*100)/100, detail: entries };
+  });
+  renderRunTable();
+  document.getElementById('saveRunBtn').style.display = 'inline-block';
+});
+
+function renderRunTable() {
+  const wrap = document.getElementById('runTableWrap');
+  let rows = currentRunEntries.map(e => `
+    <tr>
+      <td>${escapeHtml(e.name)}</td>
+      <td><span class="badge ${e.type}">${e.type === 'hourly' ? 'Hourly' : 'Salaried'}</span></td>
+      <td class="num">${e.type === 'hourly' ? e.totalHours : '—'}</td>
+      <td class="num">${e.type === 'hourly' ? e.detail.length + ' entries' : '—'}</td>
+      <td class="num ${e.gross < 0 ? 'neg' : ''}">${fmt(e.gross)}</td>
+    </tr>
+  `).join('');
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>Name</th><th>Type</th><th class="num">Hours (period)</th><th class="num">Time log</th><th class="num">Pay</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+  renderRunSummary();
+}
+
+function renderRunSummary() {
+  const wrap = document.getElementById('runSummaryWrap');
+  let totalPay = 0, headcount = currentRunEntries.length;
+  currentRunEntries.forEach(e => { totalPay += e.gross; });
+  wrap.innerHTML = `
+    <div class="stat-cards">
+      <div class="stat-card"><div class="label">Total payout</div><div class="value">${fmt(totalPay)}</div></div>
+      <div class="stat-card"><div class="label">Employees in run</div><div class="value">${headcount}</div></div>
+    </div>
+  `;
+}
+
+document.getElementById('saveRunBtn').addEventListener('click', async () => {
+  const start = document.getElementById('periodStart').value;
+  const end = document.getElementById('periodEnd').value;
+
+  const entries = currentRunEntries.map(e => ({
+    employeeId: e.employeeId, name: e.name, type: e.type,
+    totalHours: e.type === 'hourly' ? e.totalHours : null,
+    net: e.gross,
+    detail: e.detail.map(d => ({date: d.date, inTime: d.inTime, outTime: d.outTime, hours: d.hours, rate: d.rate, payout: d.payout, comment: d.comment, kind: d.kind}))
+  }));
+
+  const run = { id: 'run_' + Date.now(), start, end, createdAt: new Date().toISOString(), entries };
+  state.runs.unshift(run);
+  await saveRuns();
+  renderHistory();
+  showToast('Payroll run saved');
+
+  currentRunEntries = [];
+  document.getElementById('runTableWrap').innerHTML = '';
+  document.getElementById('runSummaryWrap').innerHTML = '';
+  document.getElementById('saveRunBtn').style.display = 'none';
+  document.getElementById('periodStart').value = '';
+  document.getElementById('periodEnd').value = '';
+
+  switchTab('history');
+});
+
+// ---------- History tab ----------
+const AVATAR_COLORS = ['#2F5D8A', '#1F7A5C', '#A8791F', '#6A4C93', '#B23A48', '#2A7F8E'];
+function colorForName(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) { hash = name.charCodeAt(i) + ((hash << 5) - hash); }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+function initialsForName(name) {
+  return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+}
+
+function renderHistory() {
+  const wrap = document.getElementById('historyWrap');
+  if (state.runs.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">No pay runs yet. Run payroll to generate paystubs.</div>';
+    return;
+  }
+  wrap.innerHTML = state.runs.map(run => `
+    <div class="run-group">
+      <div class="run-group-head">
+        <div class="range">${formatDateDisplay(run.start)} &rarr; ${formatDateDisplay(run.end)}</div>
+        <div class="count-pill">${run.entries.length} employee${run.entries.length === 1 ? '' : 's'}</div>
+      </div>
+      ${run.entries.map(en => {
+        const color = colorForName(en.name);
+        return `
+        <div class="stub-list-item" style="border-left-color:${color};">
+          <div class="stub-left">
+            <div class="stub-avatar" style="background:${color};">${initialsForName(en.name)}</div>
+            <div class="meta">
+              <div class="run-date">${escapeHtml(en.name)}</div>
+              <div class="pay-line">${fmt(en.net)}</div>
+            </div>
+          </div>
+          <button class="btn small ghost" data-view='${run.id}|${en.employeeId}'>View / print</button>
+        </div>
+      `;
+      }).join('')}
+    </div>
+  `).join('');
+
+  wrap.querySelectorAll('[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [runId, empId] = btn.dataset.view.split('|');
+      const run = state.runs.find(r => r.id === runId);
+      const entry = run.entries.find(e => e.employeeId === empId);
+      openStub(run, entry);
+    });
+  });
+}
+
+function openStub(run, entry) {
+  const content = document.getElementById('stubContent');
+  const co = state.business.companyName || 'Your Company Name';
+  const freq = state.business.frequency ? state.business.frequency.toUpperCase() + ' PAYSTUB' : 'PAYSTUB';
+  const issuedDate = formatDateDisplay(new Date(run.createdAt).toISOString().slice(0,10));
+
+  let tableHtml = '';
+  let adjLinesHtml = '';
+  let subtotalHours = 0, subtotalPay = 0, adjustmentTotal = 0;
+
+  if (entry.type === 'hourly' && entry.detail && entry.detail.length) {
+    const shiftRows = entry.detail.filter(d => d.kind === 'shift');
+    const adjRows = entry.detail.filter(d => d.kind === 'adjustment');
+
+    shiftRows.forEach(d => { subtotalHours += d.hours; subtotalPay += d.payout; });
+    adjRows.forEach(d => { adjustmentTotal += d.payout; });
+    subtotalHours = Math.round(subtotalHours*100)/100;
+    subtotalPay = Math.round(subtotalPay*100)/100;
+    adjustmentTotal = Math.round(adjustmentTotal*100)/100;
+
+    const rows = shiftRows.map(d => `
+      <tr>
+        <td>${formatDateDisplay(d.date)}</td>
+        <td>${formatTime12h(d.inTime)}</td>
+        <td>${formatTime12h(d.outTime)}</td>
+        <td class="num">${d.hours}</td>
+        <td>${escapeHtml(d.comment || '')}</td>
+      </tr>
+    `).join('');
+
+    tableHtml = `
+      <table class="doc-table">
+        <thead><tr><th>Date</th><th>In</th><th>Out</th><th class="num">Hours</th><th>Comment</th></tr></thead>
+        <tbody>
+          ${rows}
+          <tr class="total-row">
+            <td colspan="3">Total</td>
+            <td class="num">${subtotalHours}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    const adjComments = adjRows.map(d => d.comment || 'Adjustment').filter(Boolean).join(', ');
+    adjLinesHtml = `
+      <div class="doc-adj-block">
+        <div class="doc-adj-line subtotal-line"><span>Subtotal (hours worked)</span><span>${fmt(subtotalPay)}</span></div>
+        <div class="doc-adj-line"><span>Note / Adjustment Amount${adjComments ? ' (' + escapeHtml(adjComments) + ')' : ''}</span><span>${fmt(adjustmentTotal)}</span></div>
+      </div>
+    `;
+  }
+
+  content.innerHTML = `
+    <div class="paystub-doc">
+      <div class="doc-header">
+        <div class="co-name">${escapeHtml(co)}</div>
+        <div class="doc-sub">${freq}</div>
+      </div>
+
+      <div class="meta-grid">
+        <div class="mi"><div class="l">Employee</div><div class="v">${escapeHtml(entry.name)}</div></div>
+        <div class="mi"><div class="l">Issued date</div><div class="v">${issuedDate}</div></div>
+        <div class="mi"><div class="l">Period start</div><div class="v">${formatDateDisplay(run.start)}</div></div>
+        <div class="mi"><div class="l">Period end</div><div class="v">${formatDateDisplay(run.end)}</div></div>
+        ${entry.type === 'hourly' ? `
+        <div class="mi"><div class="l">Total hours</div><div class="v">${entry.totalHours}</div></div>
+        ` : `
+        <div class="mi"><div class="l">Pay type</div><div class="v">Salaried</div></div>
+        `}
+        <div class="mi"><div class="l">Pay out</div><div class="v">${fmt(entry.net)}</div></div>
+      </div>
+
+      ${tableHtml}
+      ${entry.type === 'hourly' ? adjLinesHtml : ''}
+
+      <div class="doc-new-total"><span>New Total</span><span class="amt">${fmt(entry.net)}</span></div>
+
+      <div class="doc-footer">Employee copy — keep for your records</div>
+    </div>
+  `;
+  document.getElementById('stubModal').classList.add('show');
+}
+
+document.getElementById('stubClose').addEventListener('click', closeStub);
+document.getElementById('stubCloseBtn').addEventListener('click', closeStub);
+function closeStub() { document.getElementById('stubModal').classList.remove('show'); }
+document.getElementById('stubPrintBtn').addEventListener('click', () => window.print());
+
+// ---------- Clock-In (public Google Sheet) ----------
+const clock = {
+  settings: { url: '', sourceTz: 'utc', displayTz: 'America/Los_Angeles' },
+  raw: [],          // {name, type, comps, id}
+  shifts: [],       // paired shifts + flagged leftovers
+  punches: [],      // processed punches for raw view
+  dupes: 0,
+  syncedAt: null
+};
+
+function clockSetStatus(msg, kind) {
+  const el = document.getElementById('clockStatus');
+  el.textContent = msg;
+  el.className = 'sync-status' + (kind ? ' ' + kind : '');
+}
+
+function parseCsvRows(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const rows = []; let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(field); field = '';
+      if (row.some(x => x.trim() !== '')) rows.push(row);
+      row = [];
+    } else field += c;
+  }
+  row.push(field);
+  if (row.some(x => x.trim() !== '')) rows.push(row);
+  return rows;
+}
+
+function parseSheetTimestamp(raw) {
+  const s = String(raw == null ? '' : raw).trim();
+  if (!s) return null;
+  const mk = (y, mo, d, h, mi, sec) => ({ y, mo, d, h, mi, s: sec });
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if (m) return mk(+m[1], +m[2], +m[3], +m[4], +m[5], +(m[6] || 0));
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[\s,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?/);
+  if (m) {
+    let h = +m[4]; const ap = m[7];
+    if (ap) { const pm = ap.toLowerCase() === 'pm'; if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
+    return mk(+m[3], +m[1], +m[2], h, +m[5], +(m[6] || 0));
+  }
+  if (/^\d+(\.\d+)?$/.test(s)) { // Google/Excel serial date
+    const dt = new Date(Math.round((parseFloat(s) - 25569) * 86400000));
+    return mk(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate(), dt.getUTCHours(), dt.getUTCMinutes(), dt.getUTCSeconds());
+  }
+  return null;
+}
+
+const clockFmtCache = {};
+function clockToLocal(c) {
+  const ms = Date.UTC(c.y, c.mo - 1, c.d, c.h, c.mi, c.s);
+  if (clock.settings.sourceTz === 'local') {
+    return { ms, date: `${c.y}-${pad2(c.mo)}-${pad2(c.d)}`, hhmm: `${pad2(c.h)}:${pad2(c.mi)}` };
+  }
+  const tz = clock.settings.displayTz;
+  if (!clockFmtCache[tz]) {
+    clockFmtCache[tz] = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    });
+  }
+  const p = {};
+  clockFmtCache[tz].formatToParts(new Date(ms)).forEach(x => { p[x.type] = x.value; });
+  return { ms, date: `${p.year}-${p.month}-${p.day}`, hhmm: `${p.hour}:${p.minute}` };
+}
+
+function titleCaseName(n) {
+  return n.toLowerCase().replace(/\b\w/g, ch => ch.toUpperCase());
+}
+
+function clockProcess() {
+  const MAX_SHIFT_MS = 18 * 3600000;
+  const DUPE_MS = 2 * 60000;
+  const byName = {};
+  clock.raw.forEach(r => {
+    const loc = clockToLocal(r.comps);
+    (byName[r.name] = byName[r.name] || []).push({ ...r, ...loc });
+  });
+
+  const shifts = [], punches = []; let dupes = 0;
+  const nowMs = Date.now();
+
+  Object.keys(byName).forEach(name => {
+    const list = byName[name].sort((a, b) => a.ms - b.ms);
+    const clean = [];
+    list.forEach(p => {
+      const prev = clean[clean.length - 1];
+      if (prev && prev.type === p.type && (p.ms - prev.ms) <= DUPE_MS) { dupes++; return; }
+      clean.push(p);
+    });
+    clean.forEach(p => punches.push(p));
+
+    let open = null;
+    const push = (o) => shifts.push({ name, ...o });
+    clean.forEach(p => {
+      if (p.type === 'IN') {
+        if (open) push({ date: open.date, inT: open.hhmm, outT: '', hours: 0, status: 'missing-out', ms: open.ms });
+        open = p;
+      } else {
+        if (open && (p.ms - open.ms) <= MAX_SHIFT_MS) {
+          push({ date: open.date, inT: open.hhmm, outT: p.hhmm, hours: Math.round(((p.ms - open.ms) / 3600000) * 100) / 100, status: 'ok', ms: open.ms });
+          open = null;
+        } else {
+          if (open) { push({ date: open.date, inT: open.hhmm, outT: '', hours: 0, status: 'missing-out', ms: open.ms }); open = null; }
+          push({ date: p.date, inT: '', outT: p.hhmm, hours: 0, status: 'missing-in', ms: p.ms });
+        }
+      }
+    });
+    if (open) {
+      const live = clock.settings.sourceTz === 'utc' ? (nowMs - open.ms) < MAX_SHIFT_MS : false;
+      push({ date: open.date, inT: open.hhmm, outT: '', hours: 0, status: live ? 'on-clock' : 'missing-out', ms: open.ms });
+    }
+  });
+
+  shifts.sort((a, b) => b.ms - a.ms);
+  punches.sort((a, b) => b.ms - a.ms);
+  clock.shifts = shifts; clock.punches = punches; clock.dupes = dupes;
+}
+
+function clockBuildRaw(csvText) {
+  const rows = parseCsvRows(csvText);
+  if (rows.length < 2) throw new Error('The sheet came back empty.');
+  const head = rows[0].map(h => h.trim().toLowerCase());
+  const iTime = head.findIndex(h => h.includes('submission time') || h === 'timestamp' || h === 'time' || h.includes('date'));
+  const iName = head.findIndex(h => h === 'name' || h.includes('name'));
+  const iType = head.findIndex(h => h === 'clock' || h.includes('clock') || h === 'type' || h === 'status');
+  const iId = head.findIndex(h => h.includes('submission id') || h === 'id');
+  if (iTime < 0 || iName < 0 || iType < 0) {
+    throw new Error('Could not find the columns "Submission time", "NAME" and "CLOCK" in the first row.');
+  }
+  const out = []; let skipped = 0;
+  rows.slice(1).forEach(r => {
+    const comps = parseSheetTimestamp(r[iTime]);
+    const name = (r[iName] || '').trim().toUpperCase();
+    const t = (r[iType] || '').trim().toUpperCase();
+    const type = t.includes('OUT') ? 'OUT' : (t.includes('IN') ? 'IN' : '');
+    if (!comps || !name || !type) { skipped++; return; }
+    out.push({ name, type, comps, id: iId >= 0 ? r[iId] : '' });
+  });
+  if (out.length === 0) throw new Error('No readable punches found. Check the column names and the timestamp format.');
+  clock.raw = out;
+  return { count: out.length, skipped };
+}
+
+function clockSheetUrls(url) {
+  url = url.trim();
+  if (/\/spreadsheets\/d\/e\//.test(url)) { // "Publish to web" link
+    let u = url.replace(/output=[a-z]+/i, 'output=csv');
+    if (!/output=csv/i.test(u)) u += (u.includes('?') ? '&' : '?') + 'output=csv';
+    return [u];
+  }
+  const idm = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (!idm) return [];
+  const gidm = url.match(/[#&?]gid=(\d+)/);
+  const gid = gidm ? gidm[1] : null;
+  const base = `https://docs.google.com/spreadsheets/d/${idm[1]}`;
+  return [
+    `${base}/gviz/tq?tqx=out:csv${gid ? '&gid=' + gid : ''}`,
+    `${base}/export?format=csv${gid ? '&gid=' + gid : ''}`
+  ];
+}
+
+async function syncClock() {
+  const url = clock.settings.url;
+  if (!url) { clockSetStatus('Paste your Google Sheet link first.', 'error'); return; }
+  const candidates = clockSheetUrls(url);
+  if (candidates.length === 0) { clockSetStatus('That does not look like a Google Sheets link.', 'error'); return; }
+
+  clockSetStatus('Syncing…');
+  let lastErr = null;
+  for (const u of candidates) {
+    try {
+      const resp = await fetch(u, { cache: 'no-store' });
+      if (!resp.ok) throw new Error('Google returned status ' + resp.status);
+      const text = await resp.text();
+      if (text.trim().startsWith('<')) throw new Error('Google returned a web page instead of data (sheet is probably not public).');
+      const info = clockBuildRaw(text);
+      clockProcess();
+      clock.syncedAt = new Date();
+      renderClock();
+      renderClockFilters();
+      clockSetStatus(`Synced ${info.count.toLocaleString()} punches at ${clock.syncedAt.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}` +
+        (info.skipped ? ` (${info.skipped} unreadable rows skipped)` : '') +
+        (clock.dupes ? ` · ${clock.dupes} accidental double-taps ignored` : ''), 'ok');
+      return;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  console.error('Clock sync failed', lastErr);
+  clockSetStatus('Could not load the sheet: ' + (lastErr && lastErr.message ? lastErr.message : 'unknown error') +
+    ' Make sure sharing is set to "Anyone with the link can view".', 'error');
+}
+
+async function saveClockSettings() {
+  try { await window.storage.set('clockSettings', JSON.stringify(clock.settings), false); }
+  catch (e) { console.error('Storage error saving clock settings', e); }
+}
+
+async function initClock() {
+  try {
+    const r = await window.storage.get('clockSettings', false);
+    if (r) clock.settings = { ...clock.settings, ...JSON.parse(r.value) };
+  } catch (e) { /* use defaults */ }
+  document.getElementById('clockUrl').value = clock.settings.url || '';
+  document.getElementById('clockSourceTz').value = clock.settings.sourceTz;
+  document.getElementById('clockDisplayTz').value = clock.settings.displayTz;
+  document.getElementById('weekStartSel').value = clock.settings.weekStart != null ? clock.settings.weekStart : '1';
+  if (clock.settings.url) syncClock();
+}
+
+function readClockSettingsFromForm() {
+  clock.settings.url = document.getElementById('clockUrl').value.trim();
+  clock.settings.sourceTz = document.getElementById('clockSourceTz').value;
+  clock.settings.displayTz = document.getElementById('clockDisplayTz').value;
+}
+
+document.getElementById('clockSaveBtn').addEventListener('click', async () => {
+  readClockSettingsFromForm();
+  await saveClockSettings();
+  showToast('Clock-in settings saved');
+  syncClock();
+});
+document.getElementById('clockSyncBtn').addEventListener('click', () => {
+  readClockSettingsFromForm();
+  syncClock();
+});
+['clockSourceTz', 'clockDisplayTz'].forEach(id => {
+  document.getElementById(id).addEventListener('change', async () => {
+    readClockSettingsFromForm();
+    await saveClockSettings();
+    if (clock.raw.length) { clockProcess(); renderClock(); }
+  });
+});
+
+function renderClockFilters() {
+  const sel = document.getElementById('clockFilterEmp');
+  const cur = sel.value;
+  const names = [...new Set(clock.raw.map(r => r.name))].sort();
+  sel.innerHTML = '<option value="">All employees</option>' +
+    names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(titleCaseName(n))}</option>`).join('');
+  sel.value = names.includes(cur) ? cur : '';
+}
+
+function clockRosterMatch(name) {
+  return state.employees.some(e => e.name.trim().toLowerCase() === name.toLowerCase());
+}
+
+function renderClock() {
+  renderWeek();
+  const wrap = document.getElementById('clockTableWrap');
+  const statsWrap = document.getElementById('clockStatsWrap');
+  if (!clock.raw.length) {
+    statsWrap.innerHTML = '';
+    wrap.innerHTML = '<div class="empty-state">Connect your Google Sheet above to see clock-in data.</div>';
+    return;
+  }
+  const emp = document.getElementById('clockFilterEmp').value;
+  const from = document.getElementById('clockFilterStart').value;
+  const to = document.getElementById('clockFilterEnd').value;
+  const view = document.getElementById('clockView').value;
+  const inRange = (d) => (!from || d >= from) && (!to || d <= to);
+
+  const shifts = clock.shifts.filter(s => (!emp || s.name === emp) && inRange(s.date));
+  const complete = shifts.filter(s => s.status === 'ok');
+  const issues = shifts.filter(s => s.status === 'missing-out' || s.status === 'missing-in');
+  const totalHours = Math.round(complete.reduce((a, s) => a + s.hours, 0) * 100) / 100;
+
+  statsWrap.innerHTML = `
+    <div class="stat-cards">
+      <div class="stat-card"><div class="label">Completed shifts</div><div class="value">${complete.length}</div></div>
+      <div class="stat-card"><div class="label">Total hours</div><div class="value">${totalHours}</div></div>
+      <div class="stat-card" style="border-left-color:${issues.length ? 'var(--danger)' : 'var(--good)'};"><div class="label">Needs attention</div><div class="value">${issues.length}</div></div>
+    </div>`;
+
+  const LIMIT = 400;
+  let html = '';
+  if (view === 'raw') {
+    const rows = clock.punches.filter(p => (!emp || p.name === emp) && inRange(p.date));
+    if (!rows.length) { wrap.innerHTML = '<div class="empty-state">No punches match this filter.</div>'; return; }
+    html = rows.slice(0, LIMIT).map(p => `
+      <tr>
+        <td>${escapeHtml(titleCaseName(p.name))}</td>
+        <td>${clockDayLabel(p.date)}</td>
+        <td>${formatTime12h(p.hhmm)}</td>
+        <td><span class="badge ${p.type === 'IN' ? 'live' : 'hourly'}">Clock ${p.type}</span></td>
+      </tr>`).join('');
+    wrap.innerHTML = `
+      <table class="clock-table"><thead><tr><th>Name</th><th>Date</th><th>Time</th><th>Punch</th></tr></thead><tbody>${html}</tbody></table>` +
+      (rows.length > LIMIT ? `<div class="help-note" style="padding:0.8rem 1rem;">Showing the latest ${LIMIT} of ${rows.length} punches. Narrow the dates to see more.</div>` : '');
+    return;
+  }
+
+  const list = view === 'issues' ? issues : shifts;
+  if (!list.length) { wrap.innerHTML = `<div class="empty-state">${view === 'issues' ? 'Nothing needs attention in this range.' : 'No shifts match this filter.'}</div>`; return; }
+  html = list.slice(0, LIMIT).map(s => {
+    const badge = s.status === 'ok' ? '<span class="badge salaried">Complete</span>'
+      : s.status === 'on-clock' ? '<span class="badge live">On the clock</span>'
+      : s.status === 'missing-out' ? '<span class="badge bad">Missing clock-out</span>'
+      : '<span class="badge bad">Missing clock-in</span>';
+    const unknown = clockRosterMatch(s.name) ? '' : ' <span class="badge warn" title="Not found in your Employees roster">Not in roster</span>';
+    return `
+      <tr>
+        <td>${escapeHtml(titleCaseName(s.name))}${unknown}</td>
+        <td>${clockDayLabel(s.date)}</td>
+        <td>${s.inT ? formatTime12h(s.inT) : '—'}</td>
+        <td>${s.outT ? formatTime12h(s.outT) : '—'}</td>
+        <td class="num">${s.status === 'ok' ? s.hours : '—'}</td>
+        <td>${badge}</td>
+      </tr>`;
+  }).join('');
+  wrap.innerHTML = `
+    <table class="clock-table"><thead><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th><th class="num">Hours</th><th>Status</th></tr></thead><tbody>${html}</tbody></table>` +
+    (list.length > LIMIT ? `<div class="help-note" style="padding:0.8rem 1rem;">Showing the latest ${LIMIT} of ${list.length} rows. Narrow the dates to see more.</div>` : '');
+}
+
+// ---------- Clock-In: weekly roster chart ----------
+clock.weekOffset = 0;
+
+function clockTodayIso() {
+  if (clock.settings.sourceTz === 'local') return clockIso(new Date());
+  try { return new Intl.DateTimeFormat('en-CA', { timeZone: clock.settings.displayTz }).format(new Date()); }
+  catch (e) { return clockIso(new Date()); }
+}
+function clockAddDays(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return clockIso(new Date(y, m - 1, d + n, 12));
+}
+function clockWeekStart(offset) {
+  const [y, m, d] = clockTodayIso().split('-').map(Number);
+  const dt = new Date(y, m - 1, d, 12);
+  const ws = parseInt(clock.settings.weekStart != null ? clock.settings.weekStart : '1', 10);
+  dt.setDate(dt.getDate() - ((dt.getDay() - ws + 7) % 7) + offset * 7);
+  return clockIso(dt);
+}
+function shortTime(hhmm) {
+  let [h, m] = hhmm.split(':').map(Number);
+  const suf = h >= 12 ? 'p' : 'a';
+  h = h % 12 || 12;
+  return `${h}:${pad2(m)}${suf}`;
+}
+
+function renderWeek() {
+  const wrap = document.getElementById('weekChartWrap');
+  if (!wrap) return;
+  const label = document.getElementById('weekLabel');
+  const summary = document.getElementById('weekSummary');
+  if (!clock.raw.length) {
+    label.textContent = ''; summary.textContent = '';
+    wrap.innerHTML = '<div class="empty-state">Connect your Google Sheet above to see the weekly roster.</div>';
+    return;
+  }
+  const start = clockWeekStart(clock.weekOffset);
+  const days = [0,1,2,3,4,5,6].map(i => clockAddDays(start, i));
+  const end = days[6];
+  const fmtShort = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+  const yr = end.slice(0, 4);
+  const tag = clock.weekOffset === 0 ? ' (this week)' : clock.weekOffset === -1 ? ' (last week)' : '';
+  label.textContent = `${fmtShort(start)} – ${fmtShort(end)}, ${yr}${tag}`;
+
+  const wk = clock.shifts.filter(s => s.date >= start && s.date <= end);
+  const names = [...new Set(wk.map(s => s.name))].sort();
+  if (!names.length) {
+    summary.textContent = '';
+    wrap.innerHTML = '<div class="empty-state">No one clocked in during this week.</div>';
+    return;
+  }
+
+  const today = clockTodayIso();
+  let grid = '<div class="wk-head name-h">Employee</div>';
+  days.forEach(iso => {
+    const [y, m, d] = iso.split('-').map(Number);
+    const wd = new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short' });
+    grid += `<div class="wk-head${iso === today ? ' today' : ''}">${wd}<span class="dnum">${m}/${d}</span></div>`;
+  });
+  grid += '<div class="wk-head">Hrs</div>';
+
+  let grandHours = 0;
+  names.forEach(name => {
+    const color = colorForName(titleCaseName(name));
+    const mine = wk.filter(s => s.name === name);
+    const hrs = Math.round(mine.filter(s => s.status === 'ok').reduce((a, s) => a + s.hours, 0) * 100) / 100;
+    grandHours += hrs;
+    grid += `<div class="wk-name"><span class="wk-dot" style="background:${color};">${initialsForName(titleCaseName(name))}</span>${escapeHtml(titleCaseName(name))}</div>`;
+    days.forEach(iso => {
+      const cell = mine.filter(s => s.date === iso).sort((a, b) => a.ms - b.ms);
+      const inner = cell.map(s => {
+        const cls = s.status === 'ok' ? '' : s.status === 'on-clock' ? ' live' : ' flag';
+        const t = s.status === 'ok' ? `${shortTime(s.inT)}–${shortTime(s.outT)}`
+          : s.status === 'on-clock' ? `${shortTime(s.inT)}–now`
+          : s.status === 'missing-out' ? `${shortTime(s.inT)}–?`
+          : `?–${shortTime(s.outT)}`;
+        const sub = s.status === 'ok' ? `${s.hours}h` : s.status === 'on-clock' ? 'on the clock' : s.status === 'missing-out' ? 'no clock-out' : 'no clock-in';
+        return `<div class="wk-shift${cls}" style="background:${color}22;border-left-color:${color};" title="${escapeHtml(titleCaseName(name))} ${t}"><div class="t">${t}</div><div class="h">${sub}</div></div>`;
+      }).join('');
+      grid += `<div class="wk-cell${iso === today ? ' today' : ''}">${inner}</div>`;
+    });
+    grid += `<div class="wk-total">${hrs}</div>`;
+  });
+
+  grid += '<div class="wk-foot">Working</div>';
+  days.forEach(iso => {
+    const n = new Set(wk.filter(s => s.date === iso).map(s => s.name)).size;
+    grid += `<div class="wk-foot c">${n || '–'}</div>`;
+  });
+  grid += `<div class="wk-foot c">${Math.round(grandHours * 100) / 100}</div>`;
+
+  summary.textContent = `${names.length} ${names.length === 1 ? 'person' : 'people'} worked · ${Math.round(grandHours * 100) / 100} hrs`;
+  wrap.innerHTML = `<div class="week-scroll"><div class="week-grid">${grid}</div></div>`;
+}
+
+document.getElementById('weekPrev').addEventListener('click', () => { clock.weekOffset--; renderWeek(); });
+document.getElementById('weekNext').addEventListener('click', () => { clock.weekOffset++; renderWeek(); });
+document.getElementById('weekThis').addEventListener('click', () => { clock.weekOffset = 0; renderWeek(); });
+document.getElementById('weekLast').addEventListener('click', () => { clock.weekOffset = -1; renderWeek(); });
+document.getElementById('weekStartSel').addEventListener('change', async (e) => {
+  clock.settings.weekStart = e.target.value;
+  await saveClockSettings();
+  renderWeek();
+});
+
+function clockDayLabel(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const wd = new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short' });
+  return `${wd} ${m}/${d}/${y}`;
+}
+
+['clockFilterEmp', 'clockFilterStart', 'clockFilterEnd', 'clockView'].forEach(id => {
+  document.getElementById(id).addEventListener('change', renderClock);
+});
+function clockIso(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+document.getElementById('clockRange7').addEventListener('click', () => {
+  const end = new Date(), start = new Date(); start.setDate(end.getDate() - 6);
+  document.getElementById('clockFilterStart').value = clockIso(start);
+  document.getElementById('clockFilterEnd').value = clockIso(end);
+  renderClock();
+});
+document.getElementById('clockRangeMonth').addEventListener('click', () => {
+  const now = new Date();
+  document.getElementById('clockFilterStart').value = clockIso(new Date(now.getFullYear(), now.getMonth(), 1));
+  document.getElementById('clockFilterEnd').value = clockIso(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+  renderClock();
+});
+document.getElementById('clockRangeClear').addEventListener('click', () => {
+  document.getElementById('clockFilterEmp').value = '';
+  document.getElementById('clockFilterStart').value = '';
+  document.getElementById('clockFilterEnd').value = '';
+  document.getElementById('clockView').value = 'shifts';
+  renderClock();
+});
+renderClock();
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.main-col > section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ---------- Login gate ----------
+// Auth is now handled entirely by the Firebase Authentication module
+// script below (real email/password accounts via Firebase Auth),
+// which wires up #loginSubmitBtn, #logoutBtn, and Enter-key submission.
+// Self-signup is disabled — accounts must be created by the admin
+// directly in the Firebase Console (Authentication > Users > Add user).
+</script>
+
+<!--
+  ============================================================
+  FIRESTORE STORAGE + FIREBASE AUTHENTICATION (self-signup disabled)
+  ============================================================
+  New York Slice Deli's Firebase project config is baked in below.
+  This defines window.storage (Firestore-backed, same interface the
+  app already used) AND real Firebase email/password authentication.
+  There is no signup form in this version — accounts must be created
+  by the admin directly in Firebase Console > Authentication > Users
+  > Add user. Only those accounts can log in.
+============================================================
+-->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, doc, getDoc, setDoc, deleteDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  // New York Slice Deli's Firebase project config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDMDtVKQKoKBUQ3ENWDmBySjzp24_X9ynk",
+    authDomain: "nydeli-624ad.firebaseapp.com",
+    projectId: "nydeli-624ad",
+    storageBucket: "nydeli-624ad.firebasestorage.app",
+    messagingSenderId: "1022653793685",
+    appId: "1:1022653793685:web:0b9ecb7ac44703518fa29c",
+    measurementId: "G-WR68F6BXEF"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const db = getFirestore(firebaseApp);
+  const auth = getAuth(firebaseApp);
+
+  // ---------- Firestore storage adapter ----------
+  // All app data lives in one Firestore collection called "payrollData".
+  // Each key (employees, timeEntries, payruns, businessInfo) becomes a
+  // single document with a "value" field holding the same JSON string
+  // the app already produces.
+  const COLLECTION = "payrollData";
+
+  window.storage = {
+    async get(key) {
+      try {
+        const snap = await getDoc(doc(db, COLLECTION, key));
+        if (!snap.exists()) return null;
+        return { key, value: snap.data().value, shared: false };
+      } catch (err) {
+        console.error("Firestore get() failed:", err);
+        return null;
+      }
+    },
+    async set(key, value) {
+      try {
+        await setDoc(doc(db, COLLECTION, key), { value });
+        return { key, value, shared: false };
+      } catch (err) {
+        console.error("Firestore set() failed:", err);
+        return null;
+      }
+    },
+    async delete(key) {
+      try {
+        await deleteDoc(doc(db, COLLECTION, key));
+        return { key, deleted: true, shared: false };
+      } catch (err) {
+        console.error("Firestore delete() failed:", err);
+        return null;
+      }
+    },
+    async list() {
+      // Not used by this app, kept only so nothing breaks if called.
+      return { keys: [], shared: false };
+    }
+  };
+
+  // ---------- Firebase Authentication (login only, no signup) ----------
+  function friendlyAuthError(err) {
+    const map = {
+      'auth/invalid-email': "That doesn't look like a valid email address.",
+      'auth/missing-password': 'Enter a password.',
+      'auth/user-not-found': 'No account found with that email.',
+      'auth/user-disabled': 'This account has been disabled.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/too-many-requests': 'Too many attempts — please wait a bit and try again.'
+    };
+    return map[err.code] || 'Something went wrong. Please try again.';
+  }
+
+  function showLoginForm() {
+    document.getElementById('loginForm').style.display = 'block';
+  }
+
+  document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = '';
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      document.getElementById('loginPassword').value = '';
+    } catch (err) {
+      console.error('Firebase login error', err);
+      errorEl.textContent = friendlyAuthError(err);
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+  });
+
+  // Enter key submits the login form
+  ['loginUsername', 'loginPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('loginSubmitBtn').click();
+    });
+  });
+
+  // Single source of truth for whether someone is signed in.
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('appShell').style.display = 'flex';
+      loadData();
+    } else {
+      document.getElementById('appShell').style.display = 'none';
+      document.getElementById('loginOverlay').style.display = 'flex';
+      showLoginForm();
+    }
+  });
+</script>
+</body>
+</html>
